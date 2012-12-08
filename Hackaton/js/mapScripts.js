@@ -13,7 +13,7 @@ var geodesic = null;
 google.maps.event.addDomListener(window, 'load', initialize);
 
 function sendRequests(){
-    $.post("ajax/manageRequest.php", {req : requests}, function(response){
+    $.post("ajax/manageRequest.php", {"req":requests}, function(response){
         console.log( response );
     }, "json");
 }
@@ -29,7 +29,6 @@ function addRequest( marker ){
 }
 function initialize() {
     $("#send_request").click( function(event){
-       console.log(requests);
        sendRequests();
     });
     var mapOptions = {
@@ -52,17 +51,16 @@ function initialize() {
 }
 
 function placeNewMarkerOnMap( location, map ) {
-	
-    var newMarker = new google.maps.Marker({
-        position: location, 
-        icon: {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10
-        },
-        map: map,
-        draggable:true
-    });
-					
+    var image = "images/state_1.png";
+    var iconG = new google.maps.MarkerImage(image, null, null, new google.maps.Point(25, 25));
+    var newMarker = new MarkerWithLabel({
+       position: location, 
+       icon: iconG,
+       map: map,
+       draggable:false,
+       labelAnchor: new google.maps.Point(13,14),
+       labelClass : 'label-text'
+     });
     newMarker.info = null;
     newMarker.text = "";
     newMarker.set("id", id++);
@@ -70,30 +68,63 @@ function placeNewMarkerOnMap( location, map ) {
     markers.push( newMarker );
     //var gPath = geodesic.getPath();
     //gPath.push( location );
-    google.maps.event.addListener( newMarker, 'position_changed', function(){
-        markerPositionChanged( newMarker );
+    google.maps.event.addListener( newMarker, 'click', function(){
+        if( infoBubble.get("visible") ){
+            infoBubble.close();
+            
+
+        }else{
+            input.val(newMarker.get("label"));
+            infoBubble.open();
+            
+        }
     });
    
     infoBubble = new InfoBubble({
         maxWidth: 100,
-        maxHeight:40
+        maxHeight:40,
+        pixelOffset:new google.maps.Point(25, 25)
     });
 
        
-     
+    
     infoBubble.open(map, newMarker);
         
-
     var div = document.createElement('DIV');
     $(div).addClass("input-container");
     var input = $('<input type="text" class="input-subnet"/>');
     input.keyup( function(event){
         if( event.keyCode == 13 ){
-            newMarker.set("label", $(this).val());
-            addRequest( newMarker );
-            infoBubble.close();
+            var val = $(this).val();
+            regex = /^\/{0,1}[2-3][0-9]$/g;
+            regex2 = /^\/+[2-3][0-9]$/g;
+            if( regex.test(val) ){
+                if( regex2.test( val ) ){
+                    val = val.substr(1,val.length);
+                    console.log( val );
+                }
+                if( val > 30 ){
+                    alert("Format gresit : se accepta numere intre 20 - 30 optional prefixat cu  /" );
+                    $(this).val("");
+                    $(this).focus();
+                    event.preventDefault();
+                    return false;
+                }
+                newMarker.set("visible", true);
+                newMarker.set("label", val);
+                newMarker.set("labelContent", "/"+val);
+                addRequest( newMarker );
+                infoBubble.close();
+                
+            }
+            else{
+                alert("Format gresit : se accepta numere intre 20 - 30 optional prefixat cu  /" );
+                $(this).val("");
+                $(this).focus();
+            }
             event.preventDefault();
             return false;
+            
            
         } 
        
@@ -103,9 +134,9 @@ function placeNewMarkerOnMap( location, map ) {
 
     google.maps.event.addListener( newMarker, 'click', function() {
 	
-        });
+    });
 	
-
+    input.focus();
 }
 
 
