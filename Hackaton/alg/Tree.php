@@ -34,6 +34,7 @@ class Tree {
         $nodes[] = $node;
         Query::setTaken($nodes, true);
         Query::addUserXNode($userId, $node, $lat, $long);
+        return true;
     }
     
     public static function deleteNode($nodeId)
