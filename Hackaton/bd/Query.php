@@ -63,6 +63,20 @@ class Query {
         $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
         return $node;
     }
+    
+    public static function getByLatLong($lat, $long) {
+        $query = "SELECT * from node n WHERE `lat` = '$lat' AND `long` = '$long'";
+        $connection = SingletonDB::connect();
+        $result = $connection->query($query);
+
+        if ($connection->error != '') {
+            return "-1";
+        }
+        $row = $result->fetch_assoc();
+        
+        $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+        return $node;
+    }
 
     public static function getChildren($node) {
 
