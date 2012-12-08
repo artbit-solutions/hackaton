@@ -37,12 +37,12 @@ class Tree {
         return true;
     }
     
-    public static function deleteNode($nodeId)
+    public static function deleteNode($node)
     {
-        $node = Query::getById($nodeId);
         $children = $node->getAllChildren();
         $children[] = $node;
         Query::setTaken($children, false);
+        Query::removeUserXNode($node);
         $node = $node->getParent();
         while ($node != null)
         {
@@ -59,6 +59,7 @@ class Tree {
             if ($ok) Query::setTaken($arr, false);
             $node = $node->getParent();
         }
+        return true;
     }
     
     public static function generateTree($class, $parentId)
@@ -70,6 +71,7 @@ class Tree {
         Tree::generateTree($class + 1, $id);
         Tree::generateTree($class + 1, $id);
     }
+    
     
 }
 

@@ -2,6 +2,7 @@
 To change this template, choose Tools | Templates
 and open the template in the editor.
 -->
+<?php require_once("includes.php");?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -17,6 +18,7 @@ and open the template in the editor.
     <body>
         
             <div id="menu">
+                <span>Bine ai venit, <i><?php echo $_SESSION['username']; ?></i> <a href="logout.php">logout</a></span>
                 <a class="button1 green" id = "send_request">Trimite requesturi</a>
                 <a class="button1 red disabled" id="delete_request">Sterge</a>
                 <a class="button1 blue" id="reset_network">Reseteaza alocari</a>

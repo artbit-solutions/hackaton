@@ -27,8 +27,8 @@ html, body, #map_canvas {
 	min-width:1250px;
 	position:relative;
 	z-index:8000;
-	height:40px;
-	line-height:40px;
+	height:60px;
+	line-height:60px;
 	padding-bottom:5px;
 	text-align:center;
 	background-color:#f4f4f4;
@@ -122,6 +122,7 @@ html, body, #map_canvas {
 	background: -o-linear-gradient(top, rgba(0,132,255,1) 0%,rgba(0,117,226,1) 100%); /* Opera 11.10+ */
 	background: -ms-linear-gradient(top, rgba(0,132,255,1) 0%,rgba(0,117,226,1) 100%); /* IE10+ */
 	background: linear-gradient(top, rgba(0,132,255,1) 0%,rgba(0,117,226,1) 100%); /* W3C */
+        box-shadow:inset 0px 0px 0px 1px rgba(255,255,255,0.2);
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0084ff', endColorstr='#0075e2',GradientType=0 ); /* IE6-9 */
 }
 .red
@@ -149,4 +150,50 @@ html, body, #map_canvas {
 	background: -ms-linear-gradient(top, rgba(104,217,69,1) 0%,rgba(55,173,36,1) 100%); /* IE10+ */
 	background: linear-gradient(top, rgba(104,217,69,1) 0%,rgba(55,173,36,1) 100%); /* W3C */
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#68d945', endColorstr='#37ad24',GradientType=0 ); /* IE6-9 */
+}
+#availability-cont{
+    position:relative;
+    bottom:15px;
+    display:inline-block;
+    line-height:normal;
+}
+.av-label{
+    position:absolute;
+    top:5%;
+    left:20%;
+    font-family:"Courier New", Courier, monospace;
+    font-weight:bold;
+    color:#fff;
+    font-size:12px;
+    text-shadow:1px 1px 1px rgba(0,0,0,0.8);
+}
+.av-info{
+    position:relative;
+    float:left;
+    width:35px;
+    height:75px;
+    margin-right:10px;
+    margin-left:10px;
+}
+.av-info div{
+    position:relative;
+    background-color:#f9f9f9;
+    border:solid 1px #c6c6c6;
+    color:#222;
+    font-size:13px;
+    border-radius:3px;
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+    box-shadow:inset 0px 0px 0px 1px rgb(255,255,255), inset 0px 0px 2px 3px rgba(0,0,0,0.02);
+    height:20px;
+    bottom:5px;
+}
+#form_container{
+    position:absolute;
+    left:50%;
+    top:50%;
+    margin-bottom:-100px;
+    margin-left:-125px;
+    width:250px;
+    height:200px;
 }

@@ -8,8 +8,10 @@ require_once "bd/constant.php";
 require_once "bd/SingletonDB.php";
 require_once "bd/Query.php";
 require_once "alg/Tree.php";
+require_once "alg/parser.php";
 require_once "Entity/Node.php";
-        
+    
+session_start();
         
         
 ?>

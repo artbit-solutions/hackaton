@@ -7,14 +7,13 @@ require_once("includes.php");
 
 $requests = $_POST['req'];
 
-usort($requests, function($a, $b) {return $a['space'] - $b['space'];});
-
 $done = array();
 
 foreach ($requests as $req)
 {
     try {
-        if (Tree::request($_SESSION['id'], $req['loc']['lat'], $req['loc']['lng'], $req['space']))
+        $node = Query::getByLatLong($req['loc']['lat'], $req['loc']['lng']);
+        if (Tree::deleteNode($node))
         {
             $done[] = $req['id'];
         }

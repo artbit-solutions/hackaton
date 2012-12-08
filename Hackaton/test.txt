@@ -1,0 +1,4 @@
+insert 24 1 1
+insert 24 2 2
+insert 25 4 4
+insert 28 3 3

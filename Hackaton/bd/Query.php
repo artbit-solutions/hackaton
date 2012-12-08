@@ -1,9 +1,11 @@
 <?php
 
 class Query {
-
+    
+    public static $nodeObjects = array();
+    
     public static function addUser($username, $password) {
-        $query = "INSERT into `user` (`username`, `password` ) VALUES ( '$username', 'md5($password)' )";
+        $query = "INSERT into user (username, password ) VALUES ( '$username', md5('$password') )";
         $connection = SingletonDB::connect();
         $connection->real_query($query);
 
@@ -22,7 +24,7 @@ class Query {
         $result = $connection->query($query);
 
         if ($connection->error != '' || $result->num_rows != 1) {
-            return "-1";
+            return false;
         }
 
         $row = $result->fetch_assoc();
@@ -30,8 +32,9 @@ class Query {
 
         $_SESSION['username'] = $row['username'];
         $_SESSION['id'] = $row['id'];
+        $_SESSION['admin'] = $row['admin'];
 
-        return $row['id'];
+        return true;
     }
 
     public static function getAvNodes($class) {
@@ -45,12 +48,35 @@ class Query {
         }
         $list = array();
         while ($row = $result->fetch_assoc()) {
-            $list[] = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+            if (isset (Query::$nodeObjects[$row['id']])) $list[] = Query::$nodeObjects[$row['id']];
+            else
+            {
+                $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+                Query::$nodeObjects[$row['id']] = $node;
+                $list[] = $node;
+            }
         }
         return $list;
     }
 
+    public static function getRoot(){
+        $query = "SELECT * from node n WHERE n.class = '20'";
+        //echo "$query<br/>";
+        $connection = SingletonDB::connect();
+        $result = $connection->query($query);
+
+        if ($connection->error != '') {
+            return null;
+        }
+        $list = array();
+        $row = $result->fetch_assoc();
+        return new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+        
+    }
+
+    
     public static function getById($id) {
+        if (isset (Query::$nodeObjects[$id])) return Query::$nodeObjects[$id];
         $query = "SELECT * from node n WHERE `id` = '$id'";
         $connection = SingletonDB::connect();
         $result = $connection->query($query);
@@ -61,11 +87,13 @@ class Query {
         $row = $result->fetch_assoc();
         
         $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+        Query::$nodeObjects[$id] = $node;
         return $node;
     }
     
     public static function getByLatLong($lat, $long) {
-        $query = "SELECT * from node n WHERE `lat` = '$lat' AND `long` = '$long'";
+        $query = "SELECT n.id, n.class, n.taken, n.parent from user_x_node uxn, node n WHERE uxn.`lat` = '$lat' AND uxn.`long` = '$long' AND uxn.fk_node = n.id";
+        //echo $query;
         $connection = SingletonDB::connect();
         $result = $connection->query($query);
 
@@ -73,25 +101,32 @@ class Query {
             return "-1";
         }
         $row = $result->fetch_assoc();
+        if (isset (Query::$nodeObjects[$row['id']])) return Query::$nodeObjects[$row['id']];
         
         $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+        Query::$nodeObjects[$row['id']] = $node;
         return $node;
     }
 
     public static function getChildren($node) {
 
         $id = $node->getId();
-        $query = "SELECT * from node n WHERE `parent` = '$id'";
+        $query = "SELECT * from node n WHERE parent = '$id'";
         $connection = SingletonDB::connect();
         $result = $connection->query($query);
 
         if ($connection->error != '') {
-            return "-1";
+            return array();
         }
 
         $list = array();
         while ($row = $result->fetch_assoc()) {
-            $n = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+            if (isset (Query::$nodeObjects[$row['id']])) $n = Query::$nodeObjects[$row['id']];
+            else
+            {
+                $n = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+                Query::$nodeObjects[$row['id']] = $n;
+            }
             $list[] = $n;
         }
         return $list;
@@ -101,6 +136,7 @@ class Query {
 
         foreach ($list as $node) {
             $id = $node->getId();
+            $node->setTaken($taken);
             $vals [] = $id;
         }
         $vals = implode(',', array_values($vals));
@@ -111,6 +147,7 @@ class Query {
         if ($connection->error != '') {
             return "-1";
         }
+        
     }
 
     public static function addUserXNode($user, $node, $lat, $long) {
@@ -158,6 +195,56 @@ class Query {
             return "-1";
         }
         return $connection->insert_id;
+    }
+    
+    public static function reset() {
+
+        $query = "truncate table user_x_node";
+
+        $connection = SingletonDB::connect();
+        $connection->query($query);
+        if ($connection->error != '') {
+            return "-1";
+        }
+        $query = "update node set taken = 0 where parent is not null";
+        $connection->query($query);
+        if ($connection->error != '') {
+            return "-1";
+        }
+        return "1";
+    }
+    
+    public static function getUserMarkers($userId) {
+
+        $query = "SELECT n.class space, uxn.lat, uxn.long lng from node n, user_x_node uxn WHERE uxn.fk_node = n.id and uxn.fk_user = $userId";
+        $connection = SingletonDB::connect();
+        $result = $connection->query($query);
+
+        if ($connection->error != '') {
+            return -1;
+        }
+
+        $list = array();
+        while ($row = $result->fetch_assoc()) {
+            $list[] = $row;
+        }
+        return $list;
+    }
+    public static function getAllMarkers() {
+
+        $query = "SELECT u.username, n.class space, uxn.lat, uxn.long lng from node n, user u, user_x_node uxn WHERE uxn.fk_node = n.id and uxn.fk_user = u.id";
+        $connection = SingletonDB::connect();
+        $result = $connection->query($query);
+
+        if ($connection->error != '') {
+            return -1;
+        }
+
+        $list = array();
+        while ($row = $result->fetch_assoc()) {
+            $list[] = $row;
+        }
+        return $list;
     }
 
 }

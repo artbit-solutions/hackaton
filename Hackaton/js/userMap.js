@@ -10,7 +10,6 @@ var id = 0;
 var markers = [];
 var acceptedMarkers = [];
 var selectedMarkers = [];
-var addedMarkers = [];
 var map;   
 var geodesic = null;
 google.maps.event.addDomListener(window, 'load', initialize);
@@ -21,10 +20,6 @@ function clearAllMarkers(){
         acceptedMarkers[i].set("visible",false);
     }
     acceptedMarkers = [];
-    for( var i = 0; i < addedMarkers.length; ++i ){
-        addedMarkers[i].set("visible",false);
-    }
-    addedMarkers = [];
 }
 function sendRequests(){
     var reqs = [];
@@ -37,6 +32,7 @@ function sendRequests(){
         }
         getAvailabilityInfo();
     }, "json");
+   
 }
 function addAvailabilityInfo( infoAv ){
     var container = $("#availability-cont");
@@ -89,6 +85,15 @@ function sendDeleteRequests(){
         $("#delete_request").addClass( "disabled" );
     });
 }
+function placeAllMarkers(){
+    
+    $.get("ajax/userMarkers.php", function(response){
+        console.log( response );
+        for( var i = 0; i < response.length; ++i ){
+            placeNewMarkerOnMapStatic( new google.maps.LatLng(response[i].lat, response[i].lng), map, response[i].space, response[i].title );
+        }
+    }, 'json');
+}
 function deleteMarker( id ){
     for( var i = 0; i < selectedMarkers.length; ++i ){
         if( selectedMarkers[i].get("id") == parseInt(id) ){
@@ -114,15 +119,7 @@ function acceptMarker( id ){
 function addRequest( marker ){
     requests.push(getJson(marker));
 }
-function placeAllMarkers(){
-    
-    $.get("ajax/markers.php", function(response){
-        console.log( response );
-        for( var i = 0; i < response.length; ++i ){
-            placeNewMarkerOnMapStatic( new google.maps.LatLng(response[i].lat, response[i].lng), map, response[i].space, response[i].username );
-        }
-    }, 'json');
-}
+
 function initialize() {
     getAvailabilityInfo();
     $("#send_request").click( function(event){
@@ -156,7 +153,6 @@ function initialize() {
         placeNewMarkerOnMap( event.latLng, map );
     });
     placeAllMarkers();
-    
 }
 function getImage( url ){
     return new google.maps.MarkerImage(url, null, null, new google.maps.Point(25, 25));
@@ -254,6 +250,7 @@ function placeNewMarkerOnMap( location, map ) {
                 newMarker.set("visible", true);
                 newMarker.set("label", val);
                 newMarker.set("labelContent", "/"+val);
+                addRequest( newMarker );
                 infoBubble.close();
                 
             }
@@ -278,6 +275,9 @@ function placeNewMarkerOnMap( location, map ) {
 	
     input.focus();
 }
+
+
+
 function placeNewMarkerOnMapStatic( location, map, label, title ) {
     var newMarker = new MarkerWithLabel({
        position: location, 
@@ -324,6 +324,3 @@ function placeNewMarkerOnMapStatic( location, map, label, title ) {
    addedMarkers.push(newMarker);
   
 }
-
-
-
