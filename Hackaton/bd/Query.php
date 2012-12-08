@@ -122,7 +122,7 @@ class Query {
     
     public static function addNode($node) {
         $class = $node->getClass();
-        $taken = $node->getTaken();
+        $taken = $node->isTaken();
         $parent = $node->getParent();
         if (!$taken){
             $taken = 0;
