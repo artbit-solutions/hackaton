@@ -59,7 +59,7 @@ class Query {
                 throw new MySQLException();
                 return "-1";
             }
-            
+            $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
             return $row;
     }
     
