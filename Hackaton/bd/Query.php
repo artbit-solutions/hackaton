@@ -1,5 +1,5 @@
 <?php
-
+require_once('SingletonDB.php');
 class Query {
 
     public static function addUser($username, $password) {
@@ -21,7 +21,6 @@ class Query {
         $result = $connection->query($query);
 
         if ($connection->error != '') {
-            throw new MySQLException();
             return "-1";
         }
 
@@ -40,7 +39,6 @@ class Query {
         $result = $connection->query($query);
 
         if ($connection->error != '') {
-            throw new MySQLException();
             return "-1";
         }
 
@@ -56,7 +54,6 @@ class Query {
         $result = $connection->query($query);
 
         if ($connection->error != '') {
-            throw new MySQLException();
             return "-1";
         }
         $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
@@ -71,7 +68,6 @@ class Query {
         $result = $connection->query($query);
 
         if ($connection->error != '') {
-            throw new MySQLException();
             return "-1";
         }
 
@@ -95,7 +91,6 @@ class Query {
         $connection = SingletonDB::connect();
         $connection->query($query);
         if ($connection->error != '') {
-            throw new MySQLException();
             return "-1";
         }
     }
@@ -118,12 +113,23 @@ class Query {
         $connection = SingletonDB::connect();
         $connection->real_query($query);
         if ($connection->error != '') {
-            throw new MySQLException();
             return "0";
         }
         return "1";
     }
-    ia ma ceva
+    
+    public static function addNode($node) {
+        $class = $node->getClass();
+        $taken = $node->getTaken();
+        $parent = $node->getParent();
+        $query = "INSERT into `node` (`class`, `taken`, `parent`) VALUES ( '$class', '$taken', '$parent')";
+        $connection = SingletonDB::connect();
+        $connection->real_query($query);
+        if ($connection->error != '') {
+            return "-1";
+        }
+        return $connection->insert_id;
+    }
 
 }
 
