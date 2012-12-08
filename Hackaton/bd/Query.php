@@ -63,6 +63,27 @@ class Query {
             return $row;
     }
     
+    public static function getChildren($node){
+        
+            $id = $node->getId();
+            $query = "SELECT * from node n WHERE `parent` = '$id'";
+            $connection = SingletonDB::connect();
+            $result = $connection->query($query);
+            
+            if ($connection->error != ''){
+                throw new MySQLException();
+                return "-1";
+            }
+            
+            $list = array();
+            while ($row = $result->fetch_assoc() )
+            { 
+               $n =  new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
+               $list[] = $n; 
+            }
+            return $list;
+    }
+    
 }
 
 
