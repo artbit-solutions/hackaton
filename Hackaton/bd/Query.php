@@ -47,8 +47,20 @@ class Query {
             { 
                $list[] = $row; 
             }
-            
             return $list;
+    }
+    
+    public static function getById($id){
+            $query = "SELECT * from node n WHERE `id` = '$id'";
+            $connection = SingletonDB::connect();
+            $result = $connection->query($query);
+            
+            if ($connection->error != ''){
+                throw new MySQLException();
+                return "-1";
+            }
+            
+            return $row;
     }
     
 }
