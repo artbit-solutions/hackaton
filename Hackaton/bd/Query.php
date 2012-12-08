@@ -3,7 +3,7 @@ require_once('SingletonDB.php');
 class Query {
 
     public static function addUser($username, $password) {
-        $query = "INSERT into `user` (`username`, `password` ) VALUES ( '$username', '$password' )";
+        $query = "INSERT into `user` (`username`, `password` ) VALUES ( '$username', 'md5($password)' )";
         $connection = SingletonDB::connect();
         $connection->real_query($query);
 
@@ -16,11 +16,13 @@ class Query {
     }
 
     public static function login($username, $password) {
-        $query = "SELECT from `user` WHERE `username` = '$username' AND `password` = md5('$password')";
         $connection = SingletonDB::connect();
+        $username = $connection->real_escape_string($username);
+        $password = $connection->real_escape_string($password);
+        $query = "SELECT * from `user` WHERE `username` = '$username' AND `password` = md5('$password')";
         $result = $connection->query($query);
 
-        if ($connection->error != '') {
+        if ($connection->error != '' || $result->num_rows != 1) {
             return "-1";
         }
 
@@ -122,7 +124,18 @@ class Query {
         $class = $node->getClass();
         $taken = $node->getTaken();
         $parent = $node->getParent();
-        $query = "INSERT into `node` (`class`, `taken`, `parent`) VALUES ( '$class', '$taken', '$parent')";
+        if (!$taken){
+            $taken = 0;
+        } else {
+            $taken = 1;
+        }
+        if ($parent == null){
+            $parent = 'null';
+        } else {
+            $parent = "'".$parent."'";
+        }
+        
+        $query = "INSERT into `node` (`class`, `taken`, `parent`) VALUES ( '$class', '$taken', $parent)";
         $connection = SingletonDB::connect();
         $connection->real_query($query);
         if ($connection->error != '') {
