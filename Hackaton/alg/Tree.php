@@ -1,5 +1,6 @@
 <?php
-require_once '../bd/Query.php';
+require_once ("bd/Query.php");
+require_once ("Entity/Node.php");
 
 /*
  * To change this template, choose Tools | Templates
@@ -44,9 +45,29 @@ class Tree {
         $node = $node->getParent();
         while ($node != null)
         {
-            if (!Query::freeNode($node)) break;
+            $children = $node->getChildren();
+            $ok = true;
+            foreach ($children as $c)
+                if ($c->isTaken())
+                {
+                    $ok = false;
+                    break;
+                }
+            $arr = array();
+            $arr[] = $node;
+            if ($ok) Query::setTaken($arr, false);
             $node = $node->getParent();
         }
+    }
+    
+    public static function generateTree($class, $parentId)
+    {
+        if ($class > 30) return null;
+        $node = new Node(null, $class, false, $parentId);
+        $id = Query::addNode($node);
+        if ($id == -1) return;
+        Tree::generateTree($class + 1, $id);
+        Tree::generateTree($class + 1, $id);
     }
     
 }

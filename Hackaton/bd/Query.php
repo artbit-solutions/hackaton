@@ -134,7 +134,7 @@ class Query {
         if ($parent == null){
             $parent = 'null';
         } else {
-            $parent = "'".$parent."'";
+            $parent = "'" . $parent->getId() . "'";
         }
         
         $query = "INSERT into `node` (`class`, `taken`, `parent`) VALUES ( '$class', '$taken', $parent)";
