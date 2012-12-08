@@ -16,7 +16,12 @@ class Node {
     private $taken;
     private $parent;
     
-    
+    public function __construct($id, $class, $taken, $parent) {
+        $this->id = $id;
+        $this->class = $class;
+        $this->taken = $taken;
+        $this->parent = $parent;
+    }
 }
 
 ?>
