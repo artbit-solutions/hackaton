@@ -1,5 +1,5 @@
 <?php
-require_once("constant.php");
+
 class SingletonDB{
         private static $instance;
         var $mysqli;

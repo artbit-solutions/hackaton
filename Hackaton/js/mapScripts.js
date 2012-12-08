@@ -13,7 +13,7 @@ var geodesic = null;
 google.maps.event.addDomListener(window, 'load', initialize);
 
 function sendRequests(){
-    $.post("ajax/manageRequest.php", requests, function(response){
+    $.post("ajax/manageRequest.php", {req : requests}, function(response){
         console.log( response );
     }, "json");
 }
@@ -29,6 +29,7 @@ function addRequest( marker ){
 }
 function initialize() {
     $("#send_request").click( function(event){
+       console.log(requests);
        sendRequests();
     });
     var mapOptions = {

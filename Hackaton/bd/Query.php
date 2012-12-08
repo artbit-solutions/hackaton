@@ -1,5 +1,5 @@
 <?php
-require_once('SingletonDB.php');
+
 class Query {
 
     public static function addUser($username, $password) {
@@ -8,7 +8,6 @@ class Query {
         $connection->real_query($query);
 
         if ($connection->error != '') {
-            throw new MySQLException();
             return "0";
         }
 
@@ -36,16 +35,17 @@ class Query {
     }
 
     public static function getAvNodes($class) {
-        $query = "SELECT * from node n, node p WHERE `n.class` = '$class' AND n.parent = p.id AND p.taken = true";
+        $query = "SELECT * from node n WHERE n.class = '$class' AND (not n.taken)";
+        //echo "$query<br/>";
         $connection = SingletonDB::connect();
         $result = $connection->query($query);
 
         if ($connection->error != '') {
             return "-1";
         }
-
+        $list = array();
         while ($row = $result->fetch_assoc()) {
-            $list[] = $row;
+            $list[] = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
         }
         return $list;
     }
@@ -102,10 +102,10 @@ class Query {
     public static function addUserXNode($user, $node, $lat, $long) {
         $id = $node->getId();
         $query = "INSERT into `user_x_node` (`fk_user`, `fk_node`, `lat`, `long` ) VALUES ( '$user', '$id', '$lat', '$long')";
+        //echo $query;
         $connection = SingletonDB::connect();
         $connection->real_query($query);
         if ($connection->error != '') {
-            throw new MySQLException();
             return "0";
         }
         return "1";

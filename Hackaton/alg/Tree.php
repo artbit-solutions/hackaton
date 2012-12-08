@@ -1,6 +1,4 @@
 <?php
-require_once ("bd/Query.php");
-require_once ("Entity/Node.php");
 
 /*
  * To change this template, choose Tools | Templates
@@ -19,21 +17,23 @@ class Tree {
     public static function request($userId, $lat, $long, $class)
     {
         if ($class < 24 || $class > 30) throw new InvalidArgumentException();
-        while ($class >= 24)
+        $availableNodes = Query::getAvNodes($class);
+        if (count($availableNodes) == 0) return false;
+        $node = null;
+        $dist = 1000;
+        foreach ($availableNodes as $n)
         {
-            $availableNodes = Query::getAvNodes($class);
-            if (count($availableNodes) == 0) 
+            if ($n->getDistance() < $dist) 
             {
-                $class --;
-                continue;
+                $dist = $n->getDistance();
+                $node = $n;
+                if ($dist == 1) break;
             }
-            $node = Query::getById($availableNodes[0]);
-            $nodes = array_merge($node->getAllParents(), $node->getAllChildren());
-            $nodes[] = $node;
-            Query::setTaken($nodes, true);
-            Query::addUserXNode($userId, $node, $lat, $long);
-            break;
         }
+        $nodes = array_merge($node->getAllParents(), $node->getAllChildren());
+        $nodes[] = $node;
+        Query::setTaken($nodes, true);
+        Query::addUserXNode($userId, $node, $lat, $long);
     }
     
     public static function deleteNode($nodeId)

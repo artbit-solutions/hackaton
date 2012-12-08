@@ -1,5 +1,4 @@
 <?php
-require_once 'bd/Query.php';
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -15,6 +14,7 @@ class Node {
     private $class;
     private $taken;
     private $parent;
+    private $dist = null;
     
     public function __construct($id, $class, $taken, $parent) {
         $this->id = $id;
@@ -40,7 +40,7 @@ class Node {
     
     public function getParent()
     {
-        if (getType( $this->parent ) == "integer")
+        if ($this->parent != null && getType( $this->parent ) != "object")
         {
             $this->parent = Query::getById($this->parent);
         }
@@ -70,7 +70,17 @@ class Node {
             $result[] = $c;
         }
         return $result;
-        
+    }
+    
+    public function getDistance()
+    {
+        if ($this->dist !== null) return $this->dist;
+        if ($this->taken || $this->parent === null){
+            $this->dist = 0;
+            return 0;
+        }
+        $this->dist = 1 + $this->getParent()->getDistance();
+        return $this->dist;
     }
     
 }
