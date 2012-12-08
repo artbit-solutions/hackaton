@@ -58,8 +58,10 @@ class Query {
         if ($connection->error != '') {
             return "-1";
         }
+        $row = $result->fetch_assoc();
+        
         $node = new Node($row['id'], $row['class'], $row['taken'], $row['parent']);
-        return $row;
+        return $node;
     }
 
     public static function getChildren($node) {
