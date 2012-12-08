@@ -123,6 +123,7 @@ class Query {
         }
         return "1";
     }
+    ia ma ceva
 
 }
 
